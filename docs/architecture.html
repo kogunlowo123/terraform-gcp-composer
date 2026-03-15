@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architecture - terraform-gcp-composer</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0b0c0b;color:#f5f2eb;font-family:'SF Mono','Fira Code','Cascadia Code',Consolas,monospace;line-height:1.6;padding:0}
+a{color:#c8420a;text-decoration:none}a:hover{text-decoration:underline}
+.container{max-width:1200px;margin:0 auto;padding:2rem}
+.badge-bar{background:#111;border-bottom:2px solid #c8420a;padding:0.75rem 2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.badge-bar img{height:28px}
+.badge-bar span{font-size:0.85rem;color:#aaa}
+h1{font-size:2rem;color:#c8420a;margin:1.5rem 0 0.5rem;border-bottom:1px solid #222;padding-bottom:0.5rem}
+h2{font-size:1.4rem;color:#c8420a;margin:2rem 0 1rem;border-bottom:1px solid #1a1a1a;padding-bottom:0.4rem}
+h3{font-size:1.1rem;color:#e8e0d4;margin:1.2rem 0 0.6rem}
+p,li{font-size:0.95rem;color:#ccc}
+ul{padding-left:1.5rem;margin:0.5rem 0}
+li{margin:0.3rem 0}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1rem 0}
+.card{background:#141514;border:1px solid #222;border-radius:8px;padding:1.2rem;transition:border-color 0.2s}.card:hover{border-color:#c8420a}
+.card h3{margin:0 0 0.5rem;font-size:1rem;color:#c8420a}
+.card p{font-size:0.85rem;color:#aaa;margin:0}
+.arch-diagram{background:#111;border:1px solid #222;border-radius:8px;padding:2rem;margin:1.5rem 0;overflow-x:auto}
+.flow{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:0.5rem}
+.flow-box{background:#1a1b1a;border:2px solid #333;border-radius:6px;padding:0.8rem 1.2rem;text-align:center;font-size:0.85rem;min-width:130px}
+.flow-box.accent{border-color:#c8420a;color:#c8420a;font-weight:bold}
+.flow-box.green{border-color:#34a853;color:#34a853}
+.flow-box.blue{border-color:#4285f4;color:#4285f4}
+.flow-box.purple{border-color:#9c27b0;color:#9c27b0}
+.flow-box.yellow{border-color:#fbbc04;color:#fbbc04}
+.flow-box.red{border-color:#ea4335;color:#ea4335}
+.flow-arrow{color:#555;font-size:1.5rem;display:flex;align-items:center;padding:0 0.2rem}
+.flow-col{display:flex;flex-direction:column;gap:0.5rem;align-items:center}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.85rem}
+th{background:#1a1b1a;color:#c8420a;padding:0.6rem 0.8rem;text-align:left;border:1px solid #222}
+td{padding:0.6rem 0.8rem;border:1px solid #222;color:#ccc}
+tr:nth-child(even){background:#111}
+code{background:#1a1b1a;padding:0.15rem 0.4rem;border-radius:3px;font-size:0.85rem;color:#e8e0d4}
+pre{background:#111;border:1px solid #222;border-radius:6px;padding:1rem;overflow-x:auto;margin:1rem 0}
+pre code{background:none;padding:0}
+.checklist{list-style:none;padding-left:0}
+.checklist li{padding:0.4rem 0;padding-left:1.8rem;position:relative}
+.checklist li::before{content:'[ ]';position:absolute;left:0;color:#c8420a;font-weight:bold}
+.section{margin:2rem 0}
+.footer{border-top:1px solid #222;margin-top:3rem;padding-top:1rem;text-align:center;font-size:0.8rem;color:#555}
+.exec-summary{background:#141514;border-left:4px solid #c8420a;padding:1.2rem 1.5rem;margin:1rem 0;border-radius:0 6px 6px 0}
+.exec-summary p{color:#ccc;font-size:0.95rem}
+</style>
+</head>
+<body>
+<div class="badge-bar">
+<img src="https://img.shields.io/badge/Google_Cloud-4285F4?style=flat&logo=googlecloud&logoColor=white" alt="GCP">
+<img src="https://img.shields.io/badge/Terraform-7B42BC?style=flat&logo=terraform&logoColor=white" alt="Terraform">
+<span>terraform-gcp-composer</span>
+<span style="margin-left:auto;color:#555">Architecture Document</span>
+</div>
+<div class="container">
+
+<h1>Cloud Composer Module</h1>
+
+<div class="section">
+<h2>Executive Summary</h2>
+<div class="exec-summary">
+<p>A production-ready Terraform module for deploying managed Apache Airflow environments on Google Cloud Composer 2/3. Provides configurable software settings (Airflow overrides, environment variables, PyPI packages), private networking with VPC peering or Private Service Connect, fine-grained workload configuration for scheduler, web server, workers, and triggerer components, CMEK encryption, maintenance windows with recurrence rules, web server IP access controls, master authorized networks, Cloud Data Lineage integration, and HIGH_RESILIENCE mode for multi-zone production deployments.</p>
+</div>
+</div>
+
+<div class="section">
+<h2>Overview</h2>
+<div class="card-grid">
+<div class="card"><h3>Provider</h3><p>google-beta >= 5.0</p></div>
+<div class="card"><h3>Terraform</h3><p>>= 1.3</p></div>
+<div class="card"><h3>Composer</h3><p>Version 2 and 3</p></div>
+<div class="card"><h3>Sizes</h3><p>SMALL, MEDIUM, LARGE</p></div>
+<div class="card"><h3>Networking</h3><p>Private IP, VPC Peering, PSC</p></div>
+<div class="card"><h3>Encryption</h3><p>CMEK via Cloud KMS</p></div>
+</div>
+</div>
+
+<div class="section">
+<h2>Architecture Diagram</h2>
+<div class="arch-diagram">
+<div class="flow">
+<div class="flow-col">
+<div class="flow-box accent">Terraform Module</div>
+</div>
+<div class="flow-arrow">&#9654;</div>
+<div class="flow-col">
+<div class="flow-box green">Composer Environment</div>
+</div>
+<div class="flow-arrow">&#9654;</div>
+<div class="flow-col">
+<div class="flow-box blue">GKE Cluster</div>
+</div>
+</div>
+<br>
+<div class="flow">
+<div class="flow-col">
+<div class="flow-box green">Composer</div>
+</div>
+<div class="flow-arrow">&#9654;</div>
+<div class="flow-col">
+<div class="flow-box red">Software Config</div>
+</div>
+<div class="flow-arrow">&#9654;</div>
+<div class="flow-col">
+<div class="flow-box yellow">Airflow Image</div>
+<div class="flow-box yellow">Config Overrides</div>
+<div class="flow-box yellow">PyPI Packages</div>
+<div class="flow-box yellow">Env Variables</div>
+</div>
+</div>
+<br>
+<div class="flow">
+<div class="flow-col">
+<div class="flow-box green">Composer</div>
+</div>
+<div class="flow-arrow">&#9654;</div>
+<div class="flow-col">
+<div class="flow-box purple">Workloads Config</div>
+</div>
+<div class="flow-arrow">&#9654;</div>
+<div class="flow-col">
+<div class="flow-box">Scheduler (1-3)</div>
+<div class="flow-box">Web Server</div>
+<div class="flow-box">Workers (auto-scale)</div>
+<div class="flow-box">Triggerer</div>
+</div>
+</div>
+<br>
+<div class="flow">
+<div class="flow-col">
+<div class="flow-box green">Composer</div>
+</div>
+<div class="flow-arrow">&#9654;</div>
+<div class="flow-col">
+<div class="flow-box blue">Private Networking</div>
+</div>
+<div class="flow-arrow">&#9654;</div>
+<div class="flow-col">
+<div class="flow-box">VPC / Subnet</div>
+<div class="flow-box">IP Allocation Policy</div>
+<div class="flow-box">Private Endpoint</div>
+</div>
+<div class="flow-arrow" style="margin-left:2rem">|</div>
+<div class="flow-col">
+<div class="flow-box purple">CMEK Encryption</div>
+<div class="flow-box purple">Web Server ACL</div>
+<div class="flow-box purple">Master Auth Networks</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section">
+<h2>Component Breakdown</h2>
+<h3>google_composer_environment.this</h3>
+<p>Core Composer environment resource with 60-minute create/update timeouts and 30-minute delete timeout. Configures environment size (SMALL/MEDIUM/LARGE), resilience mode (HIGH_RESILIENCE for multi-zone), and comprehensive nested configurations.</p>
+<h3>Software Config</h3>
+<p>Airflow image version, config overrides (section-key pairs), environment variables, PyPI package installation with version specs, Python version, and Cloud Data Lineage integration.</p>
+<h3>Node Config</h3>
+<p>GKE cluster configuration with VPC network, subnetwork, service account, network tags, and IP allocation policy for pod/service CIDR ranges.</p>
+<h3>Workloads Config (Composer 2)</h3>
+<p>Independent CPU, memory, and storage allocation for scheduler (1-3 instances), web server, workers (auto-scaling min/max), and triggerer components.</p>
+<h3>Private Environment Config</h3>
+<p>Private IP with configurable CIDR blocks for GKE master, Cloud SQL, web server, and Composer tenant network. Supports VPC_PEERING and PRIVATE_SERVICE_CONNECT connection types.</p>
+</div>
+
+<div class="section">
+<h2>Data Flow</h2>
+<ul>
+<li><strong>DAG Deployment:</strong> DAGs are uploaded to the Cloud Storage DAG folder (<code>dag_gcs_prefix</code>), synced to the Airflow scheduler.</li>
+<li><strong>Task Scheduling:</strong> Scheduler (1-3 instances) parses DAGs and schedules tasks. Workers auto-scale to process task queue.</li>
+<li><strong>Web UI:</strong> Airflow web server provides DAG visualization, task logs, and manual triggers. Access controlled by web server ACLs.</li>
+<li><strong>Triggerer:</strong> Handles deferrable operators, enabling efficient long-running task patterns without blocking worker slots.</li>
+<li><strong>External Access:</strong> Workers connect to external data sources through VPC networking (BigQuery, Cloud SQL, GCS, APIs).</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>Security Controls</h2>
+<table>
+<tr><th>Control</th><th>Implementation</th></tr>
+<tr><td>Encryption</td><td>CMEK via <code>kms_key_name</code> for environment data encryption</td></tr>
+<tr><td>Network Isolation</td><td>Private IP environment with VPC peering or PSC; private GKE master endpoint</td></tr>
+<tr><td>Web Server ACL</td><td>IP-based access control for Airflow web UI via <code>web_server_allowed_ip_ranges</code></td></tr>
+<tr><td>GKE Master Auth</td><td>Master authorized networks restrict kubectl access to specified CIDRs</td></tr>
+<tr><td>Service Identity</td><td>Custom service account for GKE nodes with least-privilege IAM</td></tr>
+<tr><td>Network Tags</td><td>Firewall rules via GKE node network tags</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>Industry Adaptation</h2>
+<ul>
+<li><strong>Data Engineering:</strong> Large environment with multiple workers for ETL pipelines, PyPI packages for custom operators (dbt, Great Expectations), scheduled data quality checks.</li>
+<li><strong>Financial Services:</strong> Private IP environment, CMEK encryption, restricted web server ACLs, Cloud Data Lineage for regulatory audit trails.</li>
+<li><strong>Machine Learning:</strong> Custom PyPI packages (scikit-learn, pandas, TensorFlow), triggerer for long-running training jobs, GCS-based model artifact DAGs.</li>
+<li><strong>Healthcare:</strong> HIGH_RESILIENCE mode for critical pipeline availability, private networking, master authorized networks, CMEK for PHI-adjacent workflows.</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>Production Readiness Checklist</h2>
+<ul class="checklist">
+<li>Enable private IP environment with VPC peering or PSC</li>
+<li>Configure CMEK encryption for environment data</li>
+<li>Set <code>resilience_mode = "HIGH_RESILIENCE"</code> for multi-zone deployment</li>
+<li>Use <code>ENVIRONMENT_SIZE_MEDIUM</code> or <code>LARGE</code> for production workloads</li>
+<li>Configure maintenance windows during off-peak hours</li>
+<li>Set web server ACLs to restrict Airflow UI access</li>
+<li>Configure master authorized networks for GKE access</li>
+<li>Assign dedicated service account with least-privilege IAM</li>
+<li>Set scheduler count to 2+ for redundancy</li>
+<li>Configure worker auto-scaling (min_count >= 1 for production)</li>
+<li>Pin Airflow image version for reproducible deployments</li>
+<li>Apply labels for cost tracking and resource organization</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>Configuration Reference</h2>
+<h3>Required Variables</h3>
+<table>
+<tr><th>Name</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>project_id</code></td><td>string</td><td>GCP project ID</td></tr>
+<tr><td><code>name</code></td><td>string</td><td>Composer environment name</td></tr>
+</table>
+<h3>Key Optional Variables</h3>
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th><th>Description</th></tr>
+<tr><td><code>region</code></td><td>string</td><td>us-central1</td><td>GCP region</td></tr>
+<tr><td><code>composer_version</code></td><td>number</td><td>2</td><td>Composer major version (2 or 3)</td></tr>
+<tr><td><code>environment_size</code></td><td>string</td><td>ENVIRONMENT_SIZE_SMALL</td><td>Environment size</td></tr>
+<tr><td><code>pypi_packages</code></td><td>map(string)</td><td>{}</td><td>PyPI packages to install</td></tr>
+<tr><td><code>scheduler</code></td><td>object</td><td>null</td><td>Scheduler workload config</td></tr>
+<tr><td><code>worker</code></td><td>object</td><td>null</td><td>Worker workload config (auto-scaling)</td></tr>
+<tr><td><code>kms_key_name</code></td><td>string</td><td>null</td><td>CMEK key name</td></tr>
+</table>
+<h3>Outputs</h3>
+<table>
+<tr><th>Name</th><th>Description</th></tr>
+<tr><td><code>environment_id</code></td><td>Composer environment ID</td></tr>
+<tr><td><code>environment_name</code></td><td>Environment name</td></tr>
+<tr><td><code>gke_cluster</code></td><td>Associated GKE cluster</td></tr>
+<tr><td><code>dag_gcs_prefix</code></td><td>GCS DAGs folder prefix</td></tr>
+<tr><td><code>airflow_uri</code></td><td>Airflow web UI URI</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>Deployment</h2>
+<pre><code>module "composer" {
+  source = "github.com/kogunlowo123/terraform-gcp-composer"
+
+  project_id       = "my-project"
+  region           = "us-central1"
+  name             = "prod-airflow"
+  environment_size = "ENVIRONMENT_SIZE_MEDIUM"
+  resilience_mode  = "HIGH_RESILIENCE"
+  image_version    = "composer-2.6.6-airflow-2.7.3"
+
+  network         = "projects/my-project/global/networks/default"
+  subnetwork      = "projects/my-project/regions/us-central1/subnetworks/default"
+  service_account = "composer-sa@my-project.iam.gserviceaccount.com"
+
+  enable_private_environment = true
+  private_environment_config = {
+    enable_private_endpoint    = true
+    master_ipv4_cidr_block     = "172.16.0.0/28"
+    cloud_sql_ipv4_cidr_block  = "10.0.0.0/12"
+  }
+
+  scheduler = { cpu = 2, memory_gb = 4, count = 2 }
+  worker    = { cpu = 2, memory_gb = 4, min_count = 2, max_count = 6 }
+
+  pypi_packages = {
+    "apache-airflow-providers-slack" = ">=7.0.0"
+    "pandas"                         = ">=2.0.0"
+  }
+
+  kms_key_name = "projects/my-project/locations/us-central1/keyRings/ring/cryptoKeys/key"
+
+  labels = { team = "data-engineering", env = "production" }
+}</code></pre>
+</div>
+
+<div class="section">
+<h2>Links</h2>
+<ul>
+<li><a href="https://cloud.google.com/composer/docs">Cloud Composer Documentation</a></li>
+<li><a href="https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/composer_environment">Terraform google_composer_environment</a></li>
+<li><a href="https://cloud.google.com/composer/docs/composer-2/configure-private-ip">Private IP Configuration</a></li>
+<li><a href="../README.md">Module README</a></li>
+</ul>
+</div>
+
+<div class="footer">
+<p>terraform-gcp-composer &middot; Architecture Document &middot; Generated 2026-03-15</p>
+<p style="color:#333;margin-top:0.3rem">Built for Google Cloud Platform</p>
+</div>
+</div>
+</body>
+</html>

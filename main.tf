@@ -4,7 +4,7 @@ resource "google_composer_environment" "this" {
   project = var.project_id
   name    = var.name
   region  = var.region
-  labels  = local.merged_labels
+  labels  = var.labels
 
   config {
     environment_size = var.environment_size
@@ -32,7 +32,7 @@ resource "google_composer_environment" "this" {
       tags            = var.tags
 
       dynamic "ip_allocation_policy" {
-        for_each = local.has_ip_allocation ? [var.ip_allocation_policy] : []
+        for_each = var.ip_allocation_policy != null ? [var.ip_allocation_policy] : []
         content {
           use_ip_aliases                = ip_allocation_policy.value.use_ip_aliases
           cluster_secondary_range_name  = ip_allocation_policy.value.cluster_secondary_range_name
@@ -44,7 +44,7 @@ resource "google_composer_environment" "this" {
     }
 
     dynamic "private_environment_config" {
-      for_each = local.has_private_config ? [var.private_environment_config] : []
+      for_each = var.enable_private_environment && var.private_environment_config != null ? [var.private_environment_config] : []
       content {
         enable_private_endpoint                = private_environment_config.value.enable_private_endpoint
         master_ipv4_cidr_block                 = private_environment_config.value.master_ipv4_cidr_block
@@ -76,7 +76,7 @@ resource "google_composer_environment" "this" {
     }
 
     dynamic "maintenance_window" {
-      for_each = local.has_maintenance ? [var.maintenance_window] : []
+      for_each = var.maintenance_window != null ? [var.maintenance_window] : []
       content {
         start_time = maintenance_window.value.start_time
         end_time   = maintenance_window.value.end_time
@@ -99,7 +99,7 @@ resource "google_composer_environment" "this" {
     }
 
     dynamic "workloads_config" {
-      for_each = local.has_workloads_config ? [1] : []
+      for_each = (var.scheduler != null || var.web_server != null || var.worker != null || var.triggerer != null) ? [1] : []
       content {
         dynamic "scheduler" {
           for_each = var.scheduler != null ? [var.scheduler] : []

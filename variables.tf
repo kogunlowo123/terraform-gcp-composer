@@ -31,7 +31,7 @@ variable "labels" {
 }
 
 variable "composer_version" {
-  description = "Major version of Cloud Composer. Use 2 for Composer 2 or 3 for Composer 3."
+  description = "Major version of Cloud Composer (2 or 3)."
   type        = number
   default     = 2
 
@@ -42,16 +42,13 @@ variable "composer_version" {
 }
 
 variable "image_version" {
-  description = <<-EOT
-    The version of the Composer image to use. Format: composer-MAJOR.MINOR.PATCH-airflow-MAJOR.MINOR.PATCH.
-    Example: "composer-2.6.6-airflow-2.7.3"
-  EOT
+  description = "The Composer image version (e.g., composer-2.6.6-airflow-2.7.3)."
   type        = string
   default     = null
 }
 
 variable "airflow_config_overrides" {
-  description = "Apache Airflow configuration overrides. Map of section-key => value."
+  description = "Apache Airflow configuration overrides as a map of section-key to value."
   type        = map(string)
   default     = {}
 }
@@ -63,13 +60,13 @@ variable "env_variables" {
 }
 
 variable "pypi_packages" {
-  description = "Map of custom PyPI packages to install. Key is package name, value is version spec (e.g., '==1.0.0', '>=2.0')."
+  description = "Map of custom PyPI packages to install, key is package name and value is version spec."
   type        = map(string)
   default     = {}
 }
 
 variable "python_version" {
-  description = "The Python version for the Composer environment. Only applicable for Composer 1."
+  description = "The Python version for the Composer environment (Composer 1 only)."
   type        = string
   default     = null
 }
@@ -105,15 +102,7 @@ variable "enable_private_environment" {
 }
 
 variable "private_environment_config" {
-  description = <<-EOT
-    Private environment configuration:
-    - enable_private_endpoint: If true, the GKE master is not accessible from the public internet.
-    - master_ipv4_cidr_block: CIDR block for the GKE master network (e.g., 172.16.0.0/28).
-    - cloud_sql_ipv4_cidr_block: CIDR block for Cloud SQL (e.g., 10.0.0.0/12).
-    - web_server_ipv4_cidr_block: CIDR block for the web server (e.g., 172.31.245.0/24).
-    - cloud_composer_network_ipv4_cidr_block: CIDR for Composer tenant network.
-    - connection_type: VPC_PEERING or PRIVATE_SERVICE_CONNECT.
-  EOT
+  description = "Private environment configuration for endpoint, CIDR blocks, and connection type."
   type = object({
     enable_private_endpoint                = optional(bool, true)
     master_ipv4_cidr_block                 = optional(string)
@@ -126,14 +115,7 @@ variable "private_environment_config" {
 }
 
 variable "ip_allocation_policy" {
-  description = <<-EOT
-    IP allocation policy for GKE cluster:
-    - use_ip_aliases: Whether to use IP aliases.
-    - cluster_secondary_range_name: Name of the secondary range for pods.
-    - services_secondary_range_name: Name of the secondary range for services.
-    - cluster_ipv4_cidr_block: CIDR block for pods if not using named ranges.
-    - services_ipv4_cidr_block: CIDR block for services if not using named ranges.
-  EOT
+  description = "IP allocation policy for GKE cluster with IP aliases and secondary ranges."
   type = object({
     use_ip_aliases                = optional(bool, true)
     cluster_secondary_range_name  = optional(string)
@@ -145,12 +127,7 @@ variable "ip_allocation_policy" {
 }
 
 variable "maintenance_window" {
-  description = <<-EOT
-    Maintenance window configuration:
-    - start_time: Start time in RFC 3339 format (e.g., "2024-01-01T00:00:00Z").
-    - end_time: End time in RFC 3339 format.
-    - recurrence: Recurrence in RFC 5545 RRULE format (e.g., "FREQ=WEEKLY;BYDAY=SA,SU").
-  EOT
+  description = "Maintenance window with start_time, end_time (RFC 3339), and recurrence (RFC 5545)."
   type = object({
     start_time = string
     end_time   = string
@@ -160,11 +137,7 @@ variable "maintenance_window" {
 }
 
 variable "web_server_allowed_ip_ranges" {
-  description = <<-EOT
-    List of IP ranges allowed to access the Airflow web server. Each entry:
-    - value: CIDR range (e.g., "0.0.0.0/0")
-    - description: Description of the range
-  EOT
+  description = "List of IP ranges allowed to access the Airflow web server."
   type = list(object({
     value       = string
     description = optional(string, "")
@@ -179,7 +152,7 @@ variable "kms_key_name" {
 }
 
 variable "environment_size" {
-  description = "The environment size. Supported values: ENVIRONMENT_SIZE_SMALL, ENVIRONMENT_SIZE_MEDIUM, ENVIRONMENT_SIZE_LARGE."
+  description = "The environment size (ENVIRONMENT_SIZE_SMALL, ENVIRONMENT_SIZE_MEDIUM, ENVIRONMENT_SIZE_LARGE)."
   type        = string
   default     = "ENVIRONMENT_SIZE_SMALL"
 
@@ -190,7 +163,7 @@ variable "environment_size" {
 }
 
 variable "resilience_mode" {
-  description = "Resilience mode. HIGH_RESILIENCE enables multi-zone deployments."
+  description = "Resilience mode, set to HIGH_RESILIENCE for multi-zone deployments."
   type        = string
   default     = null
 
@@ -201,13 +174,7 @@ variable "resilience_mode" {
 }
 
 variable "scheduler" {
-  description = <<-EOT
-    Scheduler workload configuration (Composer 2 only):
-    - cpu: CPU in vCPUs (e.g., 0.5)
-    - memory_gb: Memory in GB (e.g., 2)
-    - storage_gb: Storage in GB (e.g., 1)
-    - count: Number of scheduler instances (1-3)
-  EOT
+  description = "Scheduler workload configuration with cpu, memory_gb, storage_gb, and count."
   type = object({
     cpu        = optional(number, 0.5)
     memory_gb  = optional(number, 2)
@@ -218,12 +185,7 @@ variable "scheduler" {
 }
 
 variable "web_server" {
-  description = <<-EOT
-    Web server workload configuration (Composer 2 only):
-    - cpu: CPU in vCPUs
-    - memory_gb: Memory in GB
-    - storage_gb: Storage in GB
-  EOT
+  description = "Web server workload configuration with cpu, memory_gb, and storage_gb."
   type = object({
     cpu        = optional(number, 0.5)
     memory_gb  = optional(number, 2)
@@ -233,14 +195,7 @@ variable "web_server" {
 }
 
 variable "worker" {
-  description = <<-EOT
-    Worker workload configuration (Composer 2 only):
-    - cpu: CPU in vCPUs
-    - memory_gb: Memory in GB
-    - storage_gb: Storage in GB
-    - min_count: Minimum number of workers
-    - max_count: Maximum number of workers
-  EOT
+  description = "Worker workload configuration with cpu, memory_gb, storage_gb, min_count, and max_count."
   type = object({
     cpu        = optional(number, 0.5)
     memory_gb  = optional(number, 2)
@@ -252,12 +207,7 @@ variable "worker" {
 }
 
 variable "triggerer" {
-  description = <<-EOT
-    Triggerer workload configuration (Composer 2 only):
-    - cpu: CPU in vCPUs
-    - memory_gb: Memory in GB
-    - count: Number of triggerer instances
-  EOT
+  description = "Triggerer workload configuration with cpu, memory_gb, and count."
   type = object({
     cpu       = optional(number, 0.5)
     memory_gb = optional(number, 0.5)
@@ -267,11 +217,7 @@ variable "triggerer" {
 }
 
 variable "master_authorized_networks_config" {
-  description = <<-EOT
-    Master authorized networks configuration:
-    - enabled: Whether to enable master authorized networks.
-    - cidr_blocks: List of CIDR blocks with display_name and cidr_block.
-  EOT
+  description = "Master authorized networks configuration with enabled flag and CIDR blocks."
   type = object({
     enabled = optional(bool, false)
     cidr_blocks = optional(list(object({

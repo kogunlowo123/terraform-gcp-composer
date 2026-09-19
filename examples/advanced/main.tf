@@ -56,7 +56,7 @@ module "composer" {
   }
 
   ip_allocation_policy = {
-    use_ip_aliases          = true
+    use_ip_aliases           = true
     cluster_ipv4_cidr_block  = "10.4.0.0/14"
     services_ipv4_cidr_block = "10.8.0.0/20"
   }
@@ -70,18 +70,18 @@ module "composer" {
   }
 
   env_variables = {
-    ENV             = "staging"
-    GCP_PROJECT     = var.project_id
-    SLACK_WEBHOOK   = "https://hooks.slack.com/services/xxx"
-    DATA_BUCKET     = "${var.project_id}-data"
+    ENV           = "staging"
+    GCP_PROJECT   = var.project_id
+    SLACK_WEBHOOK = "https://hooks.slack.com/services/xxx"
+    DATA_BUCKET   = "${var.project_id}-data"
   }
 
   pypi_packages = {
-    "apache-airflow-providers-slack"         = ">=7.0.0"
-    "apache-airflow-providers-google"        = ">=10.0.0"
-    "apache-airflow-providers-http"          = ">=4.0.0"
-    "pandas"                                  = ">=2.0.0"
-    "google-cloud-bigquery"                  = ">=3.0.0"
+    "apache-airflow-providers-slack"  = ">=7.0.0"
+    "apache-airflow-providers-google" = ">=10.0.0"
+    "apache-airflow-providers-http"   = ">=4.0.0"
+    "pandas"                          = ">=2.0.0"
+    "google-cloud-bigquery"           = ">=3.0.0"
   }
 
   scheduler = {

@@ -69,7 +69,7 @@ module "composer" {
   }
 
   ip_allocation_policy = {
-    use_ip_aliases          = true
+    use_ip_aliases           = true
     cluster_ipv4_cidr_block  = "10.4.0.0/14"
     services_ipv4_cidr_block = "10.8.0.0/20"
   }
@@ -97,14 +97,14 @@ module "composer" {
     "core-dags_are_paused_at_creation"    = "True"
     "core-max_active_runs_per_dag"        = "5"
     "core-parallelism"                    = "32"
-    "core-dag_concurrency"               = "16"
+    "core-dag_concurrency"                = "16"
     "celery-worker_concurrency"           = "16"
     "webserver-dag_default_view"          = "graph"
     "webserver-expose_config"             = "False"
     "scheduler-dag_dir_list_interval"     = "30"
     "scheduler-min_file_process_interval" = "60"
     "scheduler-parsing_processes"         = "4"
-    "email-email_backend"                = "airflow.providers.google.cloud.utils.credentials_provider"
+    "email-email_backend"                 = "airflow.providers.google.cloud.utils.credentials_provider"
   }
 
   env_variables = {
@@ -121,19 +121,19 @@ module "composer" {
   }
 
   pypi_packages = {
-    "apache-airflow-providers-slack"         = ">=7.0.0"
-    "apache-airflow-providers-google"        = ">=10.0.0"
-    "apache-airflow-providers-http"          = ">=4.0.0"
-    "apache-airflow-providers-ssh"           = ">=3.0.0"
-    "apache-airflow-providers-postgres"      = ">=5.0.0"
-    "pandas"                                  = ">=2.0.0"
-    "numpy"                                   = ">=1.24.0"
-    "google-cloud-bigquery"                  = ">=3.0.0"
-    "google-cloud-storage"                   = ">=2.0.0"
-    "google-cloud-pubsub"                    = ">=2.0.0"
-    "pydantic"                               = ">=2.0.0"
-    "requests"                               = ">=2.31.0"
-    "sentry-sdk"                             = ">=1.0.0"
+    "apache-airflow-providers-slack"    = ">=7.0.0"
+    "apache-airflow-providers-google"   = ">=10.0.0"
+    "apache-airflow-providers-http"     = ">=4.0.0"
+    "apache-airflow-providers-ssh"      = ">=3.0.0"
+    "apache-airflow-providers-postgres" = ">=5.0.0"
+    "pandas"                            = ">=2.0.0"
+    "numpy"                             = ">=1.24.0"
+    "google-cloud-bigquery"             = ">=3.0.0"
+    "google-cloud-storage"              = ">=2.0.0"
+    "google-cloud-pubsub"               = ">=2.0.0"
+    "pydantic"                          = ">=2.0.0"
+    "requests"                          = ">=2.31.0"
+    "sentry-sdk"                        = ">=1.0.0"
   }
 
   # Production-grade workloads config
